@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<title>Raccoon Lock</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/perfect-scrollbar/perfect-scrollbar.css">
+<!--===============================================================================================-->
+
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+<script type="text/module" src="js/db.js"></script>
+<script src="js/er.js"></script> 
+<script src="node_modules/firebase/firebase.js"></script>
+<script>
+  var config = {
+    apiKey: "AIzaSyD3QWwmDnP0kIMlcZbPzi0YY0ERE4Ch9kk",
+    authDomain: "raccoonlock.firebaseapp.com",
+    databaseURL: "https://raccoonlock-default-rtdb.firebaseio.com/",
+    storageBucket: "raccoonlock.appspot.com",
+    projectId: "raccoonlock"
+};
+firebase.initializeApp(config);
+
+  // Get a reference to the database service
+const database = firebase.firestore();
+</script>
+
+
+
+<!--===============================================================================================-->
+</head>
+<style>
+    *{
+      list-style: none;
+      padding:0;
+      margin:0;
+  }
+  div{
+      text-align: left;
+      padding-top:5px;
+  }
+  ul{
+      padding-top:20px;
+      width:30%;
+      margin:0 50% 0 35%;
+  }
+  li{
+      padding:3px;
+      border:1px solid silver;
+      box-shadow: 1px 1px;
+  }
+  body {text-align: left;} 
+
+  p{
+    line-height: 22px;
+  }
+  h4{
+    margin-top:20px;
+  }
+
+  .button {
+  background-color: black; /* Green */
+  border: none;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 2px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+#logo {
+  margin: 15px; 
+  position:absolute;
+  right: 0px;
+  bottom: 0px;
+  height: 100px;
+  width: auto; 
+  border-radius: 50%; 
+}
+
+</style>
+<body>
+<div class="w3-sidebar w3-bar-block w3-black w3-card" style="width:160px">
+  <h2 class="w3-bar-item">Menu</h5>
+  <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'DevDet')">Device detection</button>
+  <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'Record')">Record</button>
+  <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'Error')">Notification</button>
+  <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'SysInfo')">System info</button>
+  <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'Contact')">Contact</button>
+</div>
+
+<div style="margin-left:160px">
+  <div class="w3-padding">
+    <!-- add content here if want some home page
+  -->
+  </div>
+
+    <!-- below is device detection page
+  -->
+  <div id="DevDet" class="w3-container page w3-animate-opacity" style="display:none;">
+  <h2>Device detection</h2>
+  <hr style="border: 10px solid black; border-radius: 5px;" />
+    <table >
+      <tr>
+      <td class="column1" >Device ID:<p id='output'></p></td>
+      <td class="column2"></td>
+    </tr>
+    <tr>
+      <td class="column1" >check if Racoon lock is connected</td>
+      <td class="column2" ></td>
+    </tr>
+
+    <tr>
+      <td class="column1" >
+          Send a test input: <input type="text" style="text-align:center;background-color: darkgray;" id="check_input"></input>
+          
+      </td>
+
+      <td class="column2" >
+        <input class="button" type="button" value="send" onclick="writeCheckData()"></input>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="column1">
+        Response check: <button class="button" type="button" onclick="checkResponse()">Check</button>
+        
+      </td>
+      <td class="column2">
+        <p id='response'></p>
+      </td>
+
+      </tr>
+      <script>
+        var data;
+        var REF_ID = firebase.database().ref('Device_ID/ID');
+          REF_ID.on('value', (snapshot) => {
+          Show_ID = snapshot.val();
+          document.getElementById('output').innerHTML = Show_ID;
+        });
+         
+        
+        
+        function writeCheckData() {
+          var checkInput = document.getElementById('check_input').value;
+          firebase.database().ref('Device_ID/check').set({
+            check: checkInput
+          });
+          alert("Sent successful!");
+        }
+
+        function checkResponse(){
+          var response;
+          var starCountRef = firebase.database().ref('Device_ID/check/check');
+          starCountRef.once('value', (snapshot) => {
+            response = snapshot.val();
+          document.getElementById('response').innerHTML = "\'"+response+"\'" + " is received";
+        });
+        }
+      </script>
+  
+  </table>
+  </div>
+
+    <!-- below is record page
+  -->
+  <div id="Record" class="w3-container page w3-animate-opacity" style="display:none">
+    
+    <div class="limiter">
+      <div class="container-table100">
+        <div class="wrap-table100">
+          <h2>Event record</h2>
+          
+          <button class="button" onclick="Renew()">renew</button>
+          <div class="table100">
+            <table>
+              <thead>
+                <tr class="table100-head">
+                  <th class="column1">Date</th>
+                  <th class="column3">Type</th>
+                  <th class="column6">Result</th>
+                <!-- <th class="column5">Quantity</th>
+                <th class="column6">Total</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                    <td class="column1"><p id="Time1"> </p></td>
+                    <td class="column3"><p id="Type1"> </p></td>
+                    <td class="column6"><p id="Result1"> </p></td>
+                   <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time2"> </p></td>
+                    <td class="column3"><p id="Type2"> </p></td>
+                    <td class="column6"><p id="Result2"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time3"> </p></td>
+                    <td class="column3"><p id="Type3"> </p></td>
+                    <td class="column6"><p id="Result3"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time4"> </p></td>
+                    <td class="column3"><p id="Type4"> </p></td>
+                    <td class="column6"><p id="Result4"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time5"> </p></td>
+                    <td class="column3"><p id="Type5"> </p></td>
+                    <td class="column6"><p id="Result5"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time6"> </p></td>
+                    <td class="column3"><p id="Type6"> </p></td>
+                    <td class="column6"><p id="Result6"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time7"> </p></td>
+                    <td class="column3"><p id="Type7"> </p></td>
+                    <td class="column6"><p id="Result7"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Time8"> </p></td>
+                    <td class="column3"><p id="Type8"> </p></td>
+                    <td class="column6"><p id="Result8"> </p></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  
+                  
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- below is error message page
+  -->
+  <div id="Error" class="w3-container page w3-animate-opacity" style="display:none">
+    <div class="limiter">
+      <div class="container-table100">
+        <div class="wrap-table100">
+          <h2>Notification</h2>
+          <div class="table100">
+            <table>
+              <thead>
+                <tr class="table100-head">
+                  <th class="column1">Date</th>
+                  <th class="column3">Description</th>
+                <!-- <th class="column5">Quantity</th>
+                <th class="column6">Total</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                    <td class="column1"><p id="Timea"> </p></td>
+                    <td class="column3">Error: Failed to scare raccoon away.</td>
+                   <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"><p id="Timeb"> </p></td>
+                    <td class="column3">Warning: Low battery.</td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"></td>
+                    <td class="column3"></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"></td>
+                    <td class="column3"></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"></td>
+                    <td class="column3"></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"></td>
+                    <td class="column3"></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+                  <tr>
+                    <td class="column1"></td>
+                    <td class="column3"></td>
+                    <!-- <td class="column5">1</td>
+                    <td class="column6">$999.00</td>-->
+                  </tr>
+
+                  <script>
+                    var t;
+                     var TimeRef= firebase.database().ref('Device_ID/Event/E_Time');
+                     TimeRef.on('value', (snapshot) => {
+                         t = snapshot.val();
+                         document.getElementById('Timea').innerHTML = t;
+                         document.getElementById('Timeb').innerHTML = t;
+                      });
+                </script>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- below is system information page
+  -->
+  <div id="SysInfo" class="w3-container page w3-animate-opacity" style="display:none">
+    <h2>System information</h2>
+    <div>Remain battery: <p id="blvl"></p></div>
+    <script>
+        var response;
+        var starCountRef = firebase.database().ref('Device_ID/battery');
+        starCountRef.once('value', (snapshot) => {
+          response = snapshot.val();
+        document.getElementById('blvl').innerHTML = response + "%";
+      });
+      
+    </script>
+  </div>
+   <!-- below is contact page
+  -->
+  <div id="Contact" class="w3-container page w3-animate-opacity" style="display:none">
+    <h2>Contact</h2>
+    <h4>SE 4G06 & TRON 4TB6 Group 34</h3>
+    <h5>Group member:</h5>
+    <p>
+      Yumeng Yu<br/>
+      David Liu<br/>
+      Yanting Cao<br/>
+      Shengchen Zhou<br/>
+      Ruile Wu
+      <br/>
+      contact email: zhous20@mcmaster.ca
+      <br/>
+      <br/>
+      <br/>
+      
+      </p>
+    <h5>
+      last edit on Jan 10, 2021
+    </h5>
+  </div>
+  <img id="logo" src="logo.png">
+</div>
+
+
+<script>
+function openLink(evt, animName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("page");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+  }
+  document.getElementById(animName).style.display = "block";
+  evt.currentTarget.className += " w3-red";
+}
+
+function open() {
+        var x = document.getElementById("status");
+        x.innerHTML = "Open";
+    }
+
+    function close() {
+        var x = document.getElementById("status");
+        x.innerHTML = "Close";
+    }
+
+
+</script>
+
+<!--===============================================================================================-->	
+<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
